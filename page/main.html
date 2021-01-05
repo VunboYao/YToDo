@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Awesome YToDo</title>
+  <link rel="stylesheet" href="./tailwind.min.css">
+  <style>
+    body {
+      margin: 0;
+      background: #00B4DB; /* fallback for old browsers */
+      background: -webkit-linear-gradient(to top, #0083B0, #00B4DB); /* Chrome 10-25, Safari 5.1-6 */
+      background: linear-gradient(to top, #0083B0, #00B4DB); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    }
+
+    footer {
+      height: 100px;
+      text-align: center;
+    }
+
+    button {
+      border-radius: 6px;
+      box-shadow: 0 0 2px #3f9ffc;
+      padding: 8px 16px;
+      color: #fff;
+      text-transform: uppercase;
+      background: linear-gradient(to left, #ee0037 0%, #3f9ffc 100%);
+    }
+  </style>
+</head>
+<body>
+<div id="app" class="container mx-auto">
+  <div v-for="(item,index) in UserList" :key="index">
+    <label :for="item.key" class="block text-xl font-medium text-gray-700">
+      {{ item.value }}
+    </label>
+    <div class="mt-1 mb-4">
+      <textarea :id="item.key"
+                v-model="item.content"
+                name="about" rows="3"
+                class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border-gray-300 rounded-md">
+      </textarea>
+    </div>
+  </div>
+  <label class="block text-xl font-medium text-gray-700">
+    日期
+  </label>
+  <div class="mt-1 mb-4">
+    <input id="date"
+           name="about"
+           v-model="createDate"
+           @blur="AuthDate"
+           class="mt-1 block w-64 bg-gray-300 rounded-md">
+  </div>
+  <footer>
+    <button @click="Generate">Generate</button>
+  </footer>
+</div>
+<script src="vue.js"></script>
+<script>
+  new Vue({
+    data: {
+      UserList: [],
+      createDate: ''
+    },
+    mounted() {
+      this.AuthDate()
+      fetch('/userList').then(res => {
+        res.json().then(callback => {
+          for (let userK in callback) {
+            this.UserList.push({
+              key: userK,
+              value: callback[userK],
+              content: ''
+            })
+          }
+        })
+      })
+    },
+    methods: {
+      AuthDate() {
+        let pattern = /^\d{4}(-)\d{2}\1\d{2}$/g
+        if (!pattern.test(this.createDate)) {
+          let date = new Date()
+          let year = date.getFullYear()
+          let month = String(date.getMonth() + 1).padStart(2, '0')
+          let day = String(date.getDate()).padStart(2, '0')
+          this.createDate = `${year}-${month}-${day}`
+        }
+      },
+      Generate() {
+        const data = {
+          date: this.createDate,
+          content: this.UserList
+        }
+        fetch('/generate', {
+          method: 'Post',
+          body: JSON.stringify(data),
+          headers: new Headers({
+            'Content-Type': 'application/json'
+          })
+        }).then(res => {
+          res.json().then(call => {
+            alert(JSON.stringify(call))
+          })
+        })
+      }
+    }
+  }).$mount('#app')
+</script>
+</body>
+</html>
