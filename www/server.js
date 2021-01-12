@@ -125,13 +125,17 @@ function subWrite(params, fileName, resolve) {
   Fs.writeFileSync(allFilePath, JSON.stringify(All), 'utf8')
   let text = ''
   let ul = '全渠道前端日报：\n'
+  let account = 0
   let len = params.content.length
   // 数据拼接
   params.content.forEach((item, index) => {
-    text += `${item.value}\n${item.content}\n\n`
-    ul += `${index + 1}:${item.content}\n`
-    if (index === len - 1) {
-      text += ul
+    if(item.content) {
+      account++
+      text += `${item.value}\n${item.content}\n\n`
+      ul += `${account}:${item.content}\n`
+      if (index === len - 1) {
+        text += ul
+      }
     }
   })
 
