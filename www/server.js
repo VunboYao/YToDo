@@ -129,16 +129,16 @@ function subWrite(params, fileName, resolve) {
   let len = params.content.length
   // 数据拼接
   params.content.forEach((item, index) => {
+    // 去除空日报导致的空行问题
     if(item.content) {
       account++
       text += `${item.value}\n${item.content}\n\n`
       ul += `${account}:${item.content}\n`
-      if (index === len - 1) {
-        text += ul
-      }
+    }
+    if (index === len - 1) {
+      text += ul
     }
   })
-
   // 数据写入
   Fs.writeFile(fileName, text, 'utf8', err => {
     if (err) {
